@@ -61,8 +61,11 @@ class Settings(BaseSettings):
     # AI
     ai_provider: Literal["none", "anthropic", "mock"] = "none"
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-sonnet-5-5"
-    ai_max_output_tokens: int = 2000
+    anthropic_model: str = "claude-opus-5-5"
+    ai_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
+    # Server-side refusal fallback (Anthropic beta "server-side-fallback-2026-07-01", fallbacks="default").
+    ai_refusal_fallback: bool = True
+    ai_max_output_tokens: int = 16000
     ai_max_page_chars: int = 12000
 
     # Keyword data

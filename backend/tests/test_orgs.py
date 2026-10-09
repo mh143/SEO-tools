@@ -4,10 +4,12 @@ def test_roles_and_invitations(alice, client_factory):
     assert r.status_code == 402
 
     # Upgrade via dev billing to allow seats is covered in billing tests; here we set plan directly.
+    import uuid
+
+    from sqlalchemy import select
+
     from app.core.db import db_session
     from app.models import Subscription
-    from sqlalchemy import select
-    import uuid
 
     with db_session() as s:
         sub = s.scalar(select(Subscription).where(Subscription.org_id == uuid.UUID(alice.org_id)))

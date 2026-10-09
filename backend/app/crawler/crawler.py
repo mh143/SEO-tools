@@ -120,7 +120,7 @@ async def crawl(cfg: CrawlConfig, *, on_progress: ProgressCb | None = None,
             else:
                 out.robots = Robots(disallow_all=True, status_code=rr.status_code)
                 out.robots_error = f"robots.txt returned HTTP {rr.status_code}; treated as 'disallow all' (RFC 9309)."
-        ua_token = "RankLensBot"
+        ua_token = "RankLensBot"  # noqa: S105 - robots.txt user-agent token
         crawl_delay = out.robots.crawl_delay(ua_token)
         if crawl_delay:
             delay = max(delay, min(crawl_delay, 5.0))

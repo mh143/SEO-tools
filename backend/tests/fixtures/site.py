@@ -32,8 +32,11 @@ class FixtureSite:
             def _serve(self, with_body=True):
                 path = urlsplit(self.path).path
                 full = self.path
-                site.hits.append(full)
-                route = site.routes.get(full) or site.routes.get(path)
+                n = int(self.headers.get("Content-Length") or 0)
+                self.body = self.rfile.read(n) if n else b""
+                site.hits.append(full if self.command in ("GET", "HEAD") else f"{self.command} {full}")
+                route = (site.routes.get(f"{self.command} {path}") or site.routes.get(full) or site.routes.get(path)
+                         or site.routes.get("*"))
                 if route is None:
                     status, headers, body = 404, {"Content-Type": "text/html"}, "<html><body>Not found</body></html>"
                 elif callable(route):
@@ -60,6 +63,15 @@ class FixtureSite:
 
             def do_HEAD(self):
                 self._serve(False)
+
+            def do_POST(self):
+                self._serve()
+
+            def do_PUT(self):
+                self._serve()
+
+            def do_DELETE(self):
+                self._serve()
 
         return H
 

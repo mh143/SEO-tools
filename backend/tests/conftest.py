@@ -11,11 +11,11 @@ os.environ.setdefault("SSRF_DEV_ALLOW_HOSTS", "")
 os.environ.setdefault("CRAWLER_DELAY_SECONDS", "0")
 
 import pytest  # noqa: E402
-from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy import text  # noqa: E402
 
+from alembic import command  # noqa: E402
 from app.core.config import get_settings  # noqa: E402
 from app.core.db import Base, get_engine, session_factory  # noqa: E402
 
@@ -120,3 +120,39 @@ def alice(client_factory):
 @pytest.fixture
 def bob(client_factory):
     return client_factory().signup("bob@example.com", org_name="Bob Co")
+
+
+@pytest.fixture
+def loopback(monkeypatch):
+    monkeypatch.setattr(get_settings(), "ssrf_dev_allow_hosts", "127.0.0.1")
+
+
+def set_plan(org_id: str, plan_key: str) -> None:
+    import uuid
+
+    from sqlalchemy import select
+
+    from app.core.db import db_session
+    from app.models import Organization, Subscription
+
+    with db_session() as s:
+        sub = s.scalar(select(Subscription).where(Subscription.org_id == uuid.UUID(org_id)))
+        sub.plan_key, sub.status = plan_key, "active"
+        s.get(Organization, uuid.UUID(org_id)).plan_key = plan_key
+
+
+def crawl_site(client, base_url: str, **crawl_body) -> dict:
+    from app.tasks.dispatch import wait_inline
+
+    org = client.org_id
+    sites = client.get(f"/api/orgs/{org}/websites").json()
+    site = next((s for s in sites if s["root_url"].startswith(base_url)), None)
+    if site is None:
+        r = client.post(f"/api/orgs/{org}/websites", {"url": base_url + "/", "name": "Fixture"})
+        assert r.status_code == 200, r.text
+        site = r.json()
+    r = client.post(f"/api/orgs/{org}/websites/{site['id']}/crawls", crawl_body or None)
+    assert r.status_code == 200, r.text
+    wait_inline(120)
+    crawl = client.get(f"/api/orgs/{org}/crawls/{r.json()['id']}").json()
+    return {"website": site, "crawl": crawl}
