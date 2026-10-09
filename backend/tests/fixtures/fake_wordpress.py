@@ -20,8 +20,8 @@ APP_PASSWORD = "abcd EFGH 1234 ijkl MNOP 5678"
 
 
 class FakeWordPress:
-    def __init__(self, *, editor_caps: bool = True):
-        self.site = FixtureSite({"*": self._route})
+    def __init__(self, *, editor_caps: bool = True, port: int = 0):
+        self.site = FixtureSite({"*": self._route}, port=port)
         self.editor_caps = editor_caps
         self.stale = False  # simulate a CDN serving old HTML
         self._stale_html: dict[str, str] = {}

@@ -23,7 +23,7 @@ from app.core.db import db_session
 from app.fixes.lifecycle import transition
 from app.fixes.types import FIX_TYPES
 from app.fixes.verify import verify_live
-from app.integrations.base import ConnectorError
+from app.integrations.base import ConnectorError, ResourceRef
 from app.integrations.registry import get_connector
 from app.models import FixProposal, FixStatus, Integration, IntegrationStatus, Page
 
@@ -62,6 +62,23 @@ def operation_params(fix: FixProposal) -> dict:
     raise ConnectorError("This fix type cannot be published automatically.")
 
 
+def preflight(db, fix: FixProposal) -> tuple[dict | None, str]:
+    """Resolve the fix URL to a provider resource without modifying anything."""
+    integ = db.get(Integration, fix.integration_id) if fix.integration_id else None
+    if integ is None or integ.org_id != fix.org_id or integ.status != IntegrationStatus.connected:
+        return None, "The publishing integration is not connected."
+    creds = decrypt_json(integ.encrypted_credentials)
+    page = db.scalar(select(Page).where(Page.org_id == fix.org_id, Page.url == fix.url).order_by(Page.fetched_at.desc()))
+    try:
+        ref = asyncio.run(get_connector(integ.provider).locate(creds, fix.url, page.extracted if page else {}))
+    except ConnectorError as exc:
+        return None, exc.user_message
+    if ref is None:
+        return None, ("This URL could not be matched to a post or page in the connected site (it may be the "
+                      "homepage template, an archive, or a custom post type). Apply this fix manually instead.")
+    return ref.to_dict(), ""
+
+
 def _load(db, fix_id: uuid.UUID) -> tuple[FixProposal | None, Integration | None]:
     fix = db.get(FixProposal, fix_id)
     if fix is None:
@@ -88,10 +105,11 @@ def apply_fix_job(fix_id: uuid.UUID, actor_id: uuid.UUID | None) -> None:
         provider = integ.provider
         url = fix.url
         params = operation_params(fix) if operation else {}
+        known = dict(fix.provider_resource or {})
     connector = get_connector(provider)
 
     async def run():
-        ref = await connector.locate(creds, url, extracted)
+        ref = ResourceRef(**known) if known.get("api_url") else await connector.locate(creds, url, extracted)
         if ref is None:
             raise ConnectorError("This URL could not be matched to a post or page in the connected site "
                                  "(it may be an archive, theme template or custom post type).")

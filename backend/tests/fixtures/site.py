@@ -10,11 +10,11 @@ from urllib.parse import urlsplit
 
 
 class FixtureSite:
-    def __init__(self, routes: dict[str, tuple] | None = None):
+    def __init__(self, routes: dict[str, tuple] | None = None, port: int = 0):
         # route path -> (status, headers: dict, body: bytes|str) or callable(handler)->tuple
         self.routes: dict = routes or {}
         self.hits: list[str] = []
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), self._handler())
+        self.server = ThreadingHTTPServer(("127.0.0.1", port), self._handler())
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
 

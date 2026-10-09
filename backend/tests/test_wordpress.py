@@ -224,3 +224,22 @@ def test_disconnect_deletes_credentials(wp):
     assert r.json()["status"] == "disconnected"
     with db_session() as s:
         assert s.get(Integration, uuid.UUID(integ["id"])).encrypted_credentials is None
+
+
+def test_publish_preflight_rejects_unmapped_url(wp):
+    """The homepage of the fake site is not a WP post/page: publishing is refused up front, state unchanged."""
+    alice, fake, res = wp
+    org = alice.org_id
+    connect(alice, fake, res["website"]["id"])
+    issue = issue_for(alice, res["crawl"]["id"], "tech.title_short", suffix=":%d/" % fake.site.port)
+    get_provider().override = {"title": "Bean There Coffee Roasters Home", "rationale": "", "insufficient_information": False}
+    fix = alice.post(f"/api/orgs/{org}/issues/{issue['id']}/fixes").json()
+    alice.post(f"/api/orgs/{org}/fixes/{fix['id']}/submit")
+    alice.post(f"/api/orgs/{org}/fixes/{fix['id']}/approve")
+    n = len(fake.writes)
+    r = alice.post(f"/api/orgs/{org}/fixes/{fix['id']}/apply")
+    assert r.status_code == 422 and "could not be matched" in r.json()["detail"]
+    assert alice.get(f"/api/orgs/{org}/fixes/{fix['id']}").json()["status"] == "approved"
+    assert len(fake.writes) == n
+    usage = alice.get(f"/api/orgs/{org}/billing").json()["usage"]["metrics"]["publish_ops"]["used"]
+    assert usage == 0

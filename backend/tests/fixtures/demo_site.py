@@ -72,7 +72,7 @@ def routes(port_base: str = "") -> dict:
     }
 
 
-def demo_site() -> FixtureSite:
-    site = FixtureSite({})
+def demo_site(port: int = 0) -> FixtureSite:
+    site = FixtureSite({}, port=port)
     site.routes.update(routes(site.base))
     return site

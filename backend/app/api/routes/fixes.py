@@ -154,6 +154,13 @@ def apply_fix(fix_id: uuid.UUID, request: Request, o: OrgContext = Depends(OrgAc
         db.commit()
         raise HTTPException(status_code=422, detail=fix.apply_unsupported_reason or "Direct publishing is not supported.")
     entitlements.require_feature(db, o.org_id, "publishing")
+    # Preflight: make sure the URL maps to an editable resource before changing any state.
+    from app.fixes.publisher import preflight
+
+    ref, reason = preflight(db, fix)
+    if ref is None:
+        raise HTTPException(status_code=422, detail=reason)
+    fix.provider_resource = ref
     entitlements.consume(db, o.org_id, "publish_ops", 1, {"fix_id": str(fix.id)})
     transition(db, fix, FixStatus.applying, actor_id=o.user.id, message="Publishing via integration.")
     audit.record(db, "fix.apply_started", org_id=o.org_id, actor_id=o.user.id, target_type="fix", target_id=fix.id,
