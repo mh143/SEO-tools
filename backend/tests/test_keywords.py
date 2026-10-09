@@ -56,7 +56,10 @@ def test_dataforseo_contract_and_labelling(alice, loopback, monkeypatch):
 
 
 def test_rate_limiter():
+    import uuid
+
     from app.core.ratelimit import hit
 
-    results = [hit("test:abc", 3, 60) for _ in range(5)]
+    key = f"test:{uuid.uuid4()}"
+    results = [hit(key, 3, 60) for _ in range(5)]
     assert results == [True, True, True, False, False]
