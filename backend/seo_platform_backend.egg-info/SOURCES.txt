@@ -1,0 +1,6 @@
+pyproject.toml
+seo_platform_backend.egg-info/PKG-INFO
+seo_platform_backend.egg-info/SOURCES.txt
+seo_platform_backend.egg-info/dependency_links.txt
+seo_platform_backend.egg-info/requires.txt
+seo_platform_backend.egg-info/top_level.txt
