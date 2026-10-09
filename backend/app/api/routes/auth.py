@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import AuthContext, optional_auth, require_auth
+from app.api.deps import AuthContext, check_origin, optional_auth, require_auth
 from app.core import audit
 from app.core.config import get_settings
 from app.core.db import get_db
@@ -96,6 +96,7 @@ def create_org_for(db: Session, user: User, name: str) -> Organization:
 
 @router.post("/signup")
 def signup(body: SignupIn, request: Request, response: Response, db: Session = Depends(get_db)):
+    check_origin(request)
     enforce(request, "signup", get_settings().rate_limit_auth_per_minute, 60)
     if err := validate_password_strength(body.password):
         raise HTTPException(status_code=422, detail=err)
@@ -129,6 +130,7 @@ def signup(body: SignupIn, request: Request, response: Response, db: Session = D
 
 @router.post("/login")
 def login(body: LoginIn, request: Request, response: Response, db: Session = Depends(get_db)):
+    check_origin(request)  # blocks cross-site login CSRF in production
     enforce(request, "login", get_settings().rate_limit_auth_per_minute, 60)
     enforce(request, "login-email", 20, 3600, identity=body.email.lower())
     user = db.scalar(select(User).where(User.email == body.email.lower()))

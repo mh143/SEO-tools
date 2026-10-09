@@ -71,3 +71,14 @@ def test_health_endpoints(client_factory):
     r = c.get("/api/health/ready")
     assert r.status_code == 200 and r.json()["database"] == "ok"
     assert r.headers["x-frame-options"] == "DENY"
+
+
+def test_cross_origin_login_rejected_in_production(client_factory, monkeypatch):
+    from app.core.config import get_settings
+
+    client_factory().signup("o@example.com")
+    monkeypatch.setattr(get_settings(), "app_env", "production")
+    c = client_factory()
+    r = c.post("/api/auth/login", {"email": "o@example.com", "password": "correct-horse-battery"},
+               headers={"Origin": "https://evil.example"})
+    assert r.status_code == 403

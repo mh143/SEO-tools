@@ -104,7 +104,7 @@ cd frontend && npx tsc --noEmit && npx next lint && npx next build
 ./scripts/e2e.sh
 ```
 
-Results in the build environment: **120 backend tests passing**, **4/4 Playwright e2e tests passing**,
+Results in the build environment: **121 backend tests passing**, **4/4 Playwright e2e tests passing**,
 type-check/lint/build clean. Some tests use local test doubles (a fixture website and a fake WordPress
 implementing the documented REST contract) because outbound internet was blocked.
 
