@@ -1,0 +1,76 @@
+# Local/full-stack development with Docker Compose.
+#   cp .env.example .env   # then edit
+#   docker compose up --build
+# App: http://localhost:8080   API docs: http://localhost:8080/api/docs
+# Only the nginx "proxy" service is published; api/web are reachable only on the internal network.
+# NOTE: this file was written for this project but could not be executed in the environment it was
+# developed in (no Docker daemon). The same stack was verified with locally installed services.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: seo
+      POSTGRES_PASSWORD: seo
+      POSTGRES_DB: seo
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seo"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://seo:seo@postgres:5432/seo
+      REDIS_URL: redis://redis:6379/0
+      TASK_BACKEND: celery
+    # Trust X-Forwarded-For only because the API is not published: its only ingress is the nginx proxy,
+    # which overwrites the header. Narrow FORWARDED_ALLOW_IPS to the proxy address in production.
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*'"
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+
+  worker:
+    build:
+      context: ./backend
+      args: {INSTALL_RENDERER: "${INSTALL_RENDERER:-false}"}
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://seo:seo@postgres:5432/seo
+      REDIS_URL: redis://redis:6379/0
+      TASK_BACKEND: celery
+    command: celery -A app.tasks.celery_app worker -Q default,crawl --concurrency=4 --loglevel=INFO
+    depends_on: [api]
+
+  beat:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://seo:seo@postgres:5432/seo
+      REDIS_URL: redis://redis:6379/0
+    command: celery -A app.tasks.celery_app beat --loglevel=INFO --schedule /tmp/celerybeat-schedule
+    depends_on: [api]
+
+  web:
+    build:
+      context: ./frontend
+      args: {BACKEND_URL: "http://api:8000"}   # build-time: Next.js bakes rewrite destinations
+    depends_on: [api]
+
+  proxy:
+    image: nginx:1.27-alpine
+    volumes: ["./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro"]
+    ports: ["8080:80"]
+    depends_on: [api, web]
+
+volumes:
+  pgdata:

@@ -127,7 +127,8 @@ def execute_run(run_id: uuid.UUID) -> None:
             return
         last_update[0] = now
         crawled = sum(1 for p in out.pages.values() if p.fetch is not None)
-        failed = sum(1 for p in out.pages.values() if p.fetch and (p.fetch.error or (p.fetch.status_code or 0) >= 400))
+        # Fetch failures only; HTTP 4xx/5xx responses are audit findings, not crawl failures.
+        failed = sum(1 for p in out.pages.values() if p.fetch and p.fetch.error)
         with db_session() as db:
             db.execute(update(CrawlRun).where(CrawlRun.id == run_id).values(
                 pages_crawled=crawled, pages_discovered=discovered, pages_failed=failed))
@@ -230,7 +231,7 @@ def persist_results(run_id: uuid.UUID, out: CrawlOutput) -> None:
         # Per-page scores for the dashboard
         sc = scores(ctx, findings)
         crawled = sum(1 for p in ctx.pages if p.status is not None)
-        failed = sum(1 for p in ctx.pages if p.error or (p.status or 0) >= 400)
+        failed = sum(1 for p in ctx.pages if p.error and not p.robots_blocked)
         run.pages_crawled = crawled
         run.pages_failed = failed
         run.pages_discovered = max(run.pages_discovered, len(ctx.pages))

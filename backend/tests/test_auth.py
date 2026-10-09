@@ -63,3 +63,11 @@ def test_delete_account_removes_sole_owner_org(client_factory, db):
     import uuid
 
     assert db.get(Organization, uuid.UUID(org_id)) is None
+
+
+def test_health_endpoints(client_factory):
+    c = client_factory()
+    assert c.get("/api/health").json() == {"status": "ok"}
+    r = c.get("/api/health/ready")
+    assert r.status_code == 200 and r.json()["database"] == "ok"
+    assert r.headers["x-frame-options"] == "DENY"

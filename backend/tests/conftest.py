@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import os
 
-os.environ.setdefault("APP_ENV", "test")
-os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://seo:seo@localhost:5432/seo_test")
+os.environ["APP_ENV"] = "test"
+# Tests DROP and recreate the schema: they only ever use TEST_DATABASE_URL, never DATABASE_URL.
+_test_db = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://seo:seo@localhost:5432/seo_test")
+if "test" not in _test_db.rsplit("/", 1)[-1]:
+    raise RuntimeError("TEST_DATABASE_URL must point to a database whose name contains 'test'.")
+os.environ["DATABASE_URL"] = _test_db
 os.environ.setdefault("TASK_BACKEND", "inline")
 os.environ.setdefault("BILLING_MODE", "dev")
 os.environ.setdefault("AI_PROVIDER", "mock")

@@ -231,7 +231,7 @@ def test_publish_preflight_rejects_unmapped_url(wp):
     alice, fake, res = wp
     org = alice.org_id
     connect(alice, fake, res["website"]["id"])
-    issue = issue_for(alice, res["crawl"]["id"], "tech.title_short", suffix=":%d/" % fake.site.port)
+    issue = issue_for(alice, res["crawl"]["id"], "tech.title_short", suffix=f":{fake.site.port}/")
     get_provider().override = {"title": "Bean There Coffee Roasters Home", "rationale": "", "insufficient_information": False}
     fix = alice.post(f"/api/orgs/{org}/issues/{issue['id']}/fixes").json()
     alice.post(f"/api/orgs/{org}/fixes/{fix['id']}/submit")
