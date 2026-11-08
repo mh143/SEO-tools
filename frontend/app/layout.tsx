@@ -1,10 +1,13 @@
+import "@fontsource-variable/inter";
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
-  title: "RankLens — Technical SEO, AEO & GEO audits",
-  description: "Audit any website for technical SEO, answer-engine and generative-search readiness, with evidence and reviewable fixes.",
+  title: { default: "RankLens — Technical SEO, AEO & GEO audits", template: "%s · RankLens" },
+  description: "Audit any website for technical SEO, answer-engine and generative-search readiness, with evidence, reviewable fixes and verified publishing to WordPress, Shopify and Wix.",
 };
+
+export const viewport: Viewport = { themeColor: "#523deb" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

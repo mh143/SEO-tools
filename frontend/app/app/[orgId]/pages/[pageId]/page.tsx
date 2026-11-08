@@ -21,14 +21,14 @@ export default function PageDetail({ params }: { params: { pageId: string } }) {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Page facts">
           <dl className="grid grid-cols-[140px_1fr] gap-x-3 gap-y-1 text-sm">
-            {rows.map(([k, v]) => (<Fragment key={k}><dt className="text-slate-500">{k}</dt><dd className="break-all">{v ?? "–"}</dd></Fragment>))}
+            {rows.map(([k, v]) => (<Fragment key={k}><dt className="text-ink-500">{k}</dt><dd className="break-all">{v ?? "–"}</dd></Fragment>))}
           </dl>
           {p.snapshot.available && <a className="mt-3 block text-sm" href={`/api/orgs/${orgId}/pages/${p.id}/snapshot`} target="_blank" rel="noreferrer">View stored HTML snapshot (JSON)</a>}
         </Card>
         <Card title={`Findings on this page (${p.issues.length})`}>
           <IssueList issues={p.issues} hrefFor={(i) => `/app/${orgId}/issues/${i.id}`} />
         </Card>
-        <Card title="Headings"><ul className="space-y-1 text-sm">{(ex.headings || []).map((h: any, idx: number) => <li key={idx} style={{ paddingLeft: (h.level - 1) * 12 }}><span className="text-xs text-slate-400">H{h.level}</span> {h.text}</li>)}</ul></Card>
+        <Card title="Headings"><ul className="space-y-1 text-sm">{(ex.headings || []).map((h: any, idx: number) => <li key={idx} style={{ paddingLeft: (h.level - 1) * 12 }}><span className="text-xs text-ink-400">H{h.level}</span> {h.text}</li>)}</ul></Card>
         <Card title="Structured data"><JsonBlock value={ex.json_ld || []} /></Card>
       </div>
     </>

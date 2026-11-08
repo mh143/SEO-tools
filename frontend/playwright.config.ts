@@ -7,7 +7,8 @@ function chromium(): string | undefined {
   const root = "/opt/pw-browsers";
   if (!existsSync(root)) return undefined;
   const dir = readdirSync(root).filter((d) => /^chromium-\d+$/.test(d)).sort().pop();
-  return dir ? `${root}/${dir}/chrome-linux/chrome` : undefined;
+  if (!dir) return undefined;
+  return ["chrome-linux64", "chrome-linux"].map((d) => `${root}/${dir}/${d}/chrome`).find((p) => existsSync(p));
 }
 
 export default defineConfig({

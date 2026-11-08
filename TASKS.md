@@ -64,5 +64,8 @@ Legend: ✅ done & tested · 🔑 implemented, needs external credentials to use
 - ✅ Playwright e2e suite + `scripts/e2e.sh`
 - ⏳ Docker Compose not executed (no Docker daemon in build environment)
 - ⏳ Email verification, password reset, 2FA, SSO
-- ⏳ Additional connectors (Webflow, Shopify), Google Search Console, brand-mention data sources
+- ✅ Shopify connector (Admin GraphQL, custom app token) and Wix connector (REST, API key) with rollback — `test_shopify_wix_gsc.py`
+- ✅ Google Search Console (OAuth, property matching, performance data) — `test_shopify_wix_gsc.py`
+- ✅ Product redesign: new design system, landing, pricing with plan comparison, auth, app shell, dashboards, Search Console chart
+- ⏳ Webflow connector, brand-mention data sources
 - ⏳ Independent security review / penetration test

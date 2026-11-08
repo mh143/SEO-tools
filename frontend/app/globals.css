@@ -3,8 +3,35 @@
 @tailwind utilities;
 
 :root { color-scheme: light; }
-body { @apply bg-slate-50 text-slate-900 antialiased; }
-a { @apply text-brand-600 hover:underline; }
-.input { @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
-.label { @apply mb-1 block text-sm font-medium text-slate-700; }
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { @apply bg-ink-50 font-sans text-ink-900; font-feature-settings: "cv11", "ss01"; }
+  a { @apply text-brand-600 transition-colors hover:text-brand-700; }
+  ::selection { @apply bg-brand-200 text-brand-950; }
+  h1, h2, h3 { letter-spacing: -0.015em; }
+  :focus-visible { @apply outline-none ring-2 ring-brand-400 ring-offset-2 ring-offset-white; }
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 shadow-sm transition
+      placeholder:text-ink-400 hover:border-ink-300 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100
+      disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-500;
+  }
+  select.input { @apply appearance-none bg-no-repeat pr-9; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239aa3b5' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.6' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right .6rem center; background-size: 1.1rem; }
+  .label { @apply mb-1.5 block text-sm font-medium text-ink-700; }
+  .mono { @apply font-mono; }
+  .link-plain { @apply text-inherit no-underline hover:text-inherit; }
+  .table-clean { @apply w-full text-sm; }
+  .table-clean thead th { @apply border-b border-ink-100 bg-ink-50/60 px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-500 first:rounded-tl-lg last:rounded-tr-lg; }
+  .table-clean tbody td { @apply border-b border-ink-100 px-3 py-3 align-top text-ink-700; }
+  .table-clean tbody tr:last-child td { @apply border-0; }
+  .table-clean tbody tr { @apply transition-colors hover:bg-ink-50/70; }
+  .grid-bg {
+    background-image: linear-gradient(to right, rgba(82,61,235,.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(82,61,235,.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .text-gradient { @apply bg-gradient-to-r from-brand-600 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent; }
+}

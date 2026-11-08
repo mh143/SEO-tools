@@ -55,6 +55,7 @@ test("audit, AI fix, approval, WordPress publish, verification and rollback", as
 
   // Connect WordPress with an application password
   await page.goto(`/app/${orgId}/integrations`);
+  await page.getByRole("button", { name: "Connect WordPress" }).click();
   await page.getByText("Or paste an application password").click();
   await page.getByLabel("WordPress username").fill("admin");
   await page.getByLabel("Application password").fill("abcd EFGH 1234 ijkl MNOP 5678");

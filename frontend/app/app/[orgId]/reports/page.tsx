@@ -23,9 +23,9 @@ function SiteReports({ orgId, website }: { orgId: string; website: any }) {
   const done = (data || []).filter((c) => ["completed", "partial"].includes(c.status));
   return (
     <Card title={website.name} className="mb-4">
-      {!data ? <Loading /> : done.length === 0 ? <p className="text-sm text-slate-500">No completed audits.</p> : (
-        <table className="w-full text-sm"><tbody>{done.map((c) => (
-          <tr key={c.id} className="border-t border-slate-100"><td className="py-2"><Link href={`/app/${orgId}/crawls/${c.id}`}>{fmtDate(c.created_at)}</Link></td><td><StatusBadge s={c.status} /></td>
+      {!data ? <Loading /> : done.length === 0 ? <p className="text-sm text-ink-500">No completed audits.</p> : (
+        <table className="table-clean"><tbody>{done.map((c) => (
+          <tr key={c.id}><td><Link href={`/app/${orgId}/crawls/${c.id}`}>{fmtDate(c.created_at)}</Link></td><td><StatusBadge s={c.status} /></td>
             <td className="space-x-3 text-right">{["html", "csv", "json", "md"].map((f) => <a key={f} href={`/api/orgs/${orgId}/crawls/${c.id}/export?format=${f}`}>{f.toUpperCase()}</a>)}</td></tr>))}</tbody></table>
       )}
     </Card>

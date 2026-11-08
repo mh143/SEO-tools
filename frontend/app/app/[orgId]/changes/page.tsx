@@ -15,13 +15,13 @@ export default function Changes() {
       {data && data.length === 0 && <Empty title="No changes yet" />}
       {data && data.length > 0 && (
         <Card>
-          <table className="w-full text-sm"><thead><tr className="text-left text-xs uppercase text-slate-500"><th className="py-2">When</th><th>Fix</th><th>Change</th><th>Message</th><th>Actor</th></tr></thead>
+          <table className="table-clean"><thead><tr><th>When</th><th>Fix</th><th>Change</th><th>Message</th><th>Actor</th></tr></thead>
             <tbody>{data.map((c) => (
-              <tr key={c.id} className="border-t border-slate-100 align-top">
+              <tr key={c.id}>
                 <td className="whitespace-nowrap py-2 text-xs">{fmtDate(c.created_at)}</td>
-                <td><Link href={`/app/${orgId}/fixes/${c.fix_id}`}>{c.fix_type}</Link><div className="max-w-xs break-all text-xs text-slate-500">{c.url}</div></td>
+                <td><Link href={`/app/${orgId}/fixes/${c.fix_id}`}>{c.fix_type}</Link><div className="max-w-xs break-all text-xs text-ink-500">{c.url}</div></td>
                 <td className="whitespace-nowrap">{c.from_status ? <><StatusBadge s={c.from_status} /> → </> : null}<StatusBadge s={c.to_status} /></td>
-                <td className="text-slate-600">{c.message}</td><td className="text-xs text-slate-500">{c.actor_user_id ? "user" : "system"}</td>
+                <td className="text-ink-600">{c.message}</td><td className="text-xs text-ink-500">{c.actor_user_id ? "user" : "system"}</td>
               </tr>))}</tbody></table>
         </Card>
       )}

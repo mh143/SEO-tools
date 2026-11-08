@@ -63,12 +63,12 @@ function Editor({ fix, onSave, busy }: { fix: any; onSave: (after: any) => void;
             <Field key={f} label={f.replace(/_/g, " ")}>
               {long ? <textarea className="input mono" rows={f === "json_ld" ? 10 : 4} value={draft[f] ?? ""} name={f} onChange={(e) => setDraft({ ...draft, [f]: e.target.value })} />
                 : <input className="input" value={draft[f] ?? ""} name={f} onChange={(e) => setDraft({ ...draft, [f]: e.target.value })} />}
-              {f === "title" && <span className="text-xs text-slate-500">{(draft[f] || "").length} characters</span>}
-              {f === "description" && <span className="text-xs text-slate-500">{(draft[f] || "").length} characters</span>}
+              {f === "title" && <span className="text-xs text-ink-500">{(draft[f] || "").length} characters</span>}
+              {f === "description" && <span className="text-xs text-ink-500">{(draft[f] || "").length} characters</span>}
             </Field>
           );
         })}
-        <p className="text-xs text-slate-500">You are responsible for the accuracy of manual edits. Edits are validated (no scripts or markup in text fields) and reset approval.</p>
+        <p className="text-xs text-ink-500">You are responsible for the accuracy of manual edits. Edits are validated (no scripts or markup in text fields) and reset approval.</p>
         <Button variant="secondary" busy={busy} onClick={() => onSave(Object.fromEntries(fields.map((f) => [f, draft[f] ?? (f === "items" ? [] : "")])))} testId="save-draft">Save draft</Button>
       </div>
     </Card>
@@ -123,18 +123,18 @@ export default function FixEditor({ params }: { params: { fixId: string } }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card title="Before and after">
-            {Object.keys(fix.after || {}).length === 0 ? <p className="text-sm text-slate-500">No valid draft. {fix.validation?.errors?.length ? "The generated suggestion was rejected; edit the draft manually or regenerate." : ""}</p>
+            {Object.keys(fix.after || {}).length === 0 ? <p className="text-sm text-ink-500">No valid draft. {fix.validation?.errors?.length ? "The generated suggestion was rejected; edit the draft manually or regenerate." : ""}</p>
               : compare(fix).map((c) => <BeforeAfter key={c.label} label={c.label} before={c.before || ""} after={c.after || ""} />)}
-            {fix.rationale && <p className="mt-4 text-sm text-slate-600"><b>Rationale:</b> {fix.rationale}</p>}
+            {fix.rationale && <p className="mt-4 text-sm text-ink-600"><b>Rationale:</b> {fix.rationale}</p>}
             {fix.validation?.warnings?.length > 0 && <div className="mt-3"><Notice kind="warning">{fix.validation.warnings.join(" ")}</Notice></div>}
             {fix.validation?.errors?.length > 0 && <div className="mt-3"><Notice kind="error"><b>Validation errors:</b><ul className="list-disc pl-5">{fix.validation.errors.map((e: string) => <li key={e}>{e}</li>)}</ul></Notice></div>}
           </Card>
           {editable && <Editor fix={fix} busy={act.busy} onSave={(after) => act.run(async () => setData(await patch(path, { after })))} />}
           {fix.verification_result?.checks && (
             <Card title="Live verification">
-              <p className="mb-2 text-sm text-slate-500">Checked {fmtDate(fix.verification_result.checked_at)} · attempt {fix.verification_attempts} · {fix.verification_result.passed ? "passed" : "not passed"}</p>
-              <table className="w-full text-sm"><tbody>{fix.verification_result.checks.map((c: any, i: number) => (
-                <tr key={i} className="border-t align-top"><td className="py-1 pr-2">{c.passed ? "✅" : "❌"}</td><td className="pr-2">{c.name}</td><td className="break-all text-xs text-slate-500">expected: {textOf(c.expected)}<br />observed: {textOf(c.observed)}</td></tr>))}</tbody></table>
+              <p className="mb-2 text-sm text-ink-500">Checked {fmtDate(fix.verification_result.checked_at)} · attempt {fix.verification_attempts} · {fix.verification_result.passed ? "passed" : "not passed"}</p>
+              <table className="table-clean"><tbody>{fix.verification_result.checks.map((c: any, i: number) => (
+                <tr key={i} className="border-t align-top"><td className="py-1 pr-2">{c.passed ? "✅" : "❌"}</td><td className="pr-2">{c.name}</td><td className="break-all text-xs text-ink-500">expected: {textOf(c.expected)}<br />observed: {textOf(c.observed)}</td></tr>))}</tbody></table>
               {fix.verification_result.error && <p className="mt-2 text-sm text-red-700">{fix.verification_result.error}</p>}
             </Card>
           )}
@@ -159,19 +159,19 @@ export default function FixEditor({ params }: { params: { fixId: string } }) {
                 <Button variant="secondary" busy={act.busy} onClick={() => doAction("verify")}>Re-verify live page</Button>}
               {isAdmin && fix.rollback_ref && Object.keys(fix.rollback_ref).length > 0 && ["verified", "failed", "verifying"].includes(s) &&
                 <Button variant="danger" busy={act.busy} onClick={() => confirm("Restore the original content on the live site?") && doRollback()} testId="rollback-fix">Roll back</Button>}
-              <div className="mt-2 flex flex-wrap gap-2 border-t pt-3 text-sm">
+              <div className="mt-2 flex flex-wrap gap-2 border-t border-ink-100 pt-3 text-sm">
                 <Button size="sm" variant="secondary" onClick={copy}>{copied ? "Copied" : "Copy instructions"}</Button>
-                <a className="rounded-md border border-slate-300 px-2.5 py-1 text-xs no-underline hover:no-underline" href={`/api${path}/export?format=txt`}>Download .txt</a>
-                <a className="rounded-md border border-slate-300 px-2.5 py-1 text-xs no-underline hover:no-underline" href={`/api${path}/export?format=json`}>JSON</a>
+                <a className="inline-flex h-8 items-center rounded-lg border border-ink-200 bg-white px-3 text-xs font-medium text-ink-800 no-underline shadow-sm hover:bg-ink-50 hover:text-ink-900" href={`/api${path}/export?format=txt`}>Download .txt</a>
+                <a className="inline-flex h-8 items-center rounded-lg border border-ink-200 bg-white px-3 text-xs font-medium text-ink-800 no-underline shadow-sm hover:bg-ink-50 hover:text-ink-900" href={`/api${path}/export?format=json`}>JSON</a>
               </div>
             </div>
           </Card>
           <Card title="Verification steps"><ol className="list-decimal space-y-1 pl-5 text-sm">{fix.verification_steps.map((v: string) => <li key={v}>{v}</li>)}</ol></Card>
-          {fix.issue && <Card title="Finding"><Link href={`/app/${orgId}/issues/${fix.issue.id}`}>{fix.issue.title}</Link><p className="mt-1 text-sm text-slate-500">{fix.issue.description}</p></Card>}
+          {fix.issue && <Card title="Finding"><Link href={`/app/${orgId}/issues/${fix.issue.id}`}>{fix.issue.title}</Link><p className="mt-1 text-sm text-ink-500">{fix.issue.description}</p></Card>}
           <Card title="History">
             <ol className="space-y-2 text-sm" data-testid="fix-history">{fix.history.map((h: any) => (
-              <li key={h.id} className="border-l-2 border-slate-200 pl-3"><StatusBadge s={h.to_status} /> <span className="text-xs text-slate-500">{fmtDate(h.created_at)}</span>
-                {h.message && <div className="text-slate-600">{h.message}</div>}</li>))}</ol>
+              <li key={h.id} className="border-l-2 border-ink-200 pl-3"><StatusBadge s={h.to_status} /> <span className="text-xs text-ink-500">{fmtDate(h.created_at)}</span>
+                {h.message && <div className="text-ink-600">{h.message}</div>}</li>))}</ol>
           </Card>
         </div>
       </div>

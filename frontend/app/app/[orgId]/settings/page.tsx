@@ -44,7 +44,7 @@ export default function Settings() {
         </Card>
         <Card title="Data & deletion" className="border-red-200">
           <div className="space-y-4 text-sm">
-            <p className="text-slate-600">Page snapshots are kept for a limited period and anonymous audits expire automatically. Deleting a website removes its audits, snapshots, fixes and integration credentials.</p>
+            <p className="text-ink-600">Page snapshots are kept for a limited period and anonymous audits expire automatically. Deleting a website removes its audits, snapshots, fixes and integration credentials.</p>
             {role === "owner" && (
               <Button variant="danger" busy={act.busy} onClick={() => act.run(async () => {
                 if (prompt(`Type the workspace name (${org?.name}) to permanently delete it and all its data`) !== org?.name) return;
@@ -53,7 +53,7 @@ export default function Settings() {
             )}
             <div className="border-t pt-4">
               <Field label="Delete my account (confirm with password)"><input className="input" type="password" value={delPw} onChange={(e) => setDelPw(e.target.value)} /></Field>
-              <p className="mt-1 text-xs text-slate-500">Workspaces where you are the only owner are deleted too.</p>
+              <p className="mt-1 text-xs text-ink-500">Workspaces where you are the only owner are deleted too.</p>
               <div className="mt-2"><Button variant="danger" size="sm" busy={act.busy} onClick={() => act.run(async () => { if (!confirm("Permanently delete your account?")) return; await post(`/auth/delete-account`, { password: delPw }); router.push("/"); })}>Delete account</Button></div>
             </div>
           </div>
@@ -69,7 +69,7 @@ function AuditLogCard({ orgId }: { orgId: string }) {
   return (
     <Card title="Security audit log">
       <ul className="max-h-80 space-y-1 overflow-auto text-xs">{data?.map((l) => (
-        <li key={l.id} className="flex justify-between gap-2 border-b border-slate-100 py-1"><span className="mono">{l.action}</span><span className="text-slate-500">{new Date(l.created_at).toLocaleString()} · {l.ip || ""}</span></li>))}</ul>
+        <li key={l.id} className="flex justify-between gap-2 border-b border-ink-100 py-1"><span className="mono">{l.action}</span><span className="text-ink-500">{new Date(l.created_at).toLocaleString()} · {l.ip || ""}</span></li>))}</ul>
     </Card>
   );
 }

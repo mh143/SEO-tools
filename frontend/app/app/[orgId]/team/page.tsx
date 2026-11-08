@@ -23,10 +23,10 @@ export default function Team() {
       {act.error && <div className="mb-4"><Notice kind="error">{act.error}</Notice></div>}
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2" title="Members">
-          <table className="w-full text-sm"><thead><tr className="text-left text-xs uppercase text-slate-500"><th className="py-2">Member</th><th>Role</th><th /></tr></thead>
+          <table className="table-clean"><thead><tr><th>Member</th><th>Role</th><th /></tr></thead>
             <tbody>{data.members.map((m: any) => (
-              <tr key={m.id} className="border-t border-slate-100">
-                <td className="py-2">{m.name || m.email}<div className="text-xs text-slate-500">{m.email}</div></td>
+              <tr key={m.id}>
+                <td>{m.name || m.email}<div className="text-xs text-ink-500">{m.email}</div></td>
                 <td>{isAdmin && m.user_id !== me.id ? (
                   <select className="input w-32" value={m.role} onChange={(e) => act.run(async () => { await patch(`/orgs/${orgId}/members/${m.id}`, { role: e.target.value }); reload(); })}>
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}</select>) : m.role}</td>

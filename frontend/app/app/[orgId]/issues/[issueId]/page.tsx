@@ -28,10 +28,10 @@ export default function IssueDetail({ params }: { params: { issueId: string } })
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card title="What we found">
-            <p className="break-all text-sm text-slate-500">{i.url || "Site-wide"}{i.page && <> · <Link href={`/app/${orgId}/pages/${i.page.id}`}>page details</Link></>}</p>
+            <p className="break-all text-sm text-ink-500">{i.url || "Site-wide"}{i.page && <> · <Link href={`/app/${orgId}/pages/${i.page.id}`}>page details</Link></>}</p>
             <p className="mt-2">{i.description}</p>
-            <h3 className="mt-4 text-sm font-semibold">Why it matters</h3><p className="text-sm text-slate-700">{i.why_it_matters}</p>
-            <h3 className="mt-4 text-sm font-semibold">Recommendation</h3><p className="text-sm text-slate-700">{i.recommendation}</p>
+            <h3 className="mt-4 text-sm font-semibold">Why it matters</h3><p className="text-sm text-ink-700">{i.why_it_matters}</p>
+            <h3 className="mt-4 text-sm font-semibold">Recommendation</h3><p className="text-sm text-ink-700">{i.recommendation}</p>
           </Card>
           <Card title="Evidence"><JsonBlock value={i.evidence} /></Card>
           <Card title="History across audits">
@@ -41,7 +41,7 @@ export default function IssueDetail({ params }: { params: { issueId: string } })
         </div>
         <div className="space-y-4">
           <Card title="Fix">
-            {!fs.fix_type ? <p className="text-sm text-slate-600">{fs.reason}</p> : (
+            {!fs.fix_type ? <p className="text-sm text-ink-600">{fs.reason}</p> : (
               <div className="space-y-3 text-sm">
                 <div><b>{fs.label}</b> · {fs.generator === "ai" ? "AI-drafted" : fs.generator === "rule" ? "rule-based" : "advisory"} · risk {fs.risk}</div>
                 {fs.ai?.warning && fs.generator === "ai" && <Notice kind="warning">{fs.ai.warning}</Notice>}

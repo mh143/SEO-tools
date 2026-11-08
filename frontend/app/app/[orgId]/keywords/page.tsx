@@ -9,7 +9,7 @@ import { hasRole, useSession } from "@/lib/session";
 
 const SRC: Record<string, [string, string]> = {
   measured: ["Measured", "bg-emerald-100 text-emerald-800"], ai_idea: ["AI idea · not measured", "bg-violet-100 text-violet-800"],
-  on_page: ["On your site", "bg-slate-100 text-slate-700"],
+  on_page: ["On your site", "bg-ink-100 text-ink-700"],
 };
 
 export default function Keywords() {
@@ -37,11 +37,11 @@ export default function Keywords() {
           <div className="lg:col-span-2">
             <Card title={`Keywords (${data.keywords.length})`}>
               {data.keywords.length === 0 ? <Empty title="No keyword data yet">Extract terms from your site, ask for AI ideas, or fetch measured data.</Empty> : (
-                <table className="w-full text-sm"><thead><tr className="text-left text-xs uppercase text-slate-500"><th className="py-2">Keyword</th><th>Source</th><th>Volume</th><th>Difficulty</th><th>Intent</th><th>Best page</th></tr></thead>
+                <table className="table-clean"><thead><tr><th>Keyword</th><th>Source</th><th>Volume</th><th>Difficulty</th><th>Intent</th><th>Best page</th></tr></thead>
                   <tbody>{data.keywords.map((k: any) => (
-                    <tr key={k.id} className="border-t border-slate-100 align-top">
-                      <td className="py-2 font-medium">{k.keyword}{k.notes && <div className="text-xs font-normal text-slate-500">{k.notes}</div>}</td>
-                      <td><Badge tone={SRC[k.source]?.[1]}>{SRC[k.source]?.[0] || k.source}</Badge>{k.data_provider && <div className="text-xs text-slate-500">{k.data_provider}</div>}</td>
+                    <tr key={k.id}>
+                      <td className="py-2 font-medium">{k.keyword}{k.notes && <div className="text-xs font-normal text-ink-500">{k.notes}</div>}</td>
+                      <td><Badge tone={SRC[k.source]?.[1]}>{SRC[k.source]?.[0] || k.source}</Badge>{k.data_provider && <div className="text-xs text-ink-500">{k.data_provider}</div>}</td>
                       <td className="tabular-nums">{k.search_volume ?? "—"}</td><td className="tabular-nums">{k.difficulty ?? "—"}</td><td>{k.intent || "—"}</td>
                       <td className="max-w-[200px] break-all text-xs">{k.related_url ? <a href={k.related_url} target="_blank" rel="noreferrer noopener">{k.related_url}</a> : <span className="text-amber-700">content gap</span>}</td>
                     </tr>))}</tbody></table>
@@ -56,7 +56,7 @@ export default function Keywords() {
                     <Field label="Seed keywords (comma separated)"><input className="input" value={seeds} onChange={(e) => setSeeds(e.target.value)} /></Field>
                     <Field label="Location"><input className="input" value={location} onChange={(e) => setLocation(e.target.value)} /></Field>
                     <Button busy={act.busy} onClick={() => act.run(async () => { await post(`/orgs/${orgId}/websites/${websiteId}/keywords/research`, { seeds: seeds.split(",").map((s) => s.trim()).filter(Boolean), location }); reload(); })}>Fetch data</Button>
-                    <p className="text-xs text-slate-500">Source: {data.providers.measured.name}</p>
+                    <p className="text-xs text-ink-500">Source: {data.providers.measured.name}</p>
                   </div>
                 )}
               </Card>
@@ -64,8 +64,8 @@ export default function Keywords() {
                 <div className="flex flex-col gap-2">
                   <Button variant="secondary" busy={act.busy} onClick={() => act.run(async () => { await post(`/orgs/${orgId}/websites/${websiteId}/keywords/on-page`); reload(); })}>Extract terms from my site</Button>
                   <Button variant="secondary" busy={act.busy} disabled={!data.providers.ai.configured} onClick={() => act.run(async () => { await post(`/orgs/${orgId}/websites/${websiteId}/keywords/ideas`); reload(); })}>Suggest AI ideas</Button>
-                  {!data.providers.ai.configured && <p className="text-xs text-slate-500">AI provider not configured.</p>}
-                  <p className="text-xs text-slate-500">AI ideas are hypotheses to validate with measured data — not demand estimates.</p>
+                  {!data.providers.ai.configured && <p className="text-xs text-ink-500">AI provider not configured.</p>}
+                  <p className="text-xs text-ink-500">AI ideas are hypotheses to validate with measured data — not demand estimates.</p>
                 </div>
               </Card>
             </div>

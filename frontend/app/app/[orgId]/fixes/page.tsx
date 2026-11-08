@@ -26,7 +26,7 @@ export default function FixQueue() {
           <a className="text-sm" href={`/api/orgs/${orgId}/fixes-export?format=csv${website ? `&website_id=${website}` : ""}`}>Export CSV</a></>} />
       <div className="mb-4 flex flex-wrap gap-2">
         {Object.entries(GROUPS).map(([k, v]) => (
-          <button key={k} onClick={() => setStatus(k)} className={`rounded-full border px-3 py-1 text-sm ${status === k ? "border-brand-500 bg-brand-50 text-brand-700" : "border-slate-300 bg-white"}`}>{v}</button>
+          <button key={k} onClick={() => setStatus(k)} className={`rounded-full border px-3 py-1 text-sm ${status === k ? "border-brand-500 bg-brand-50 text-brand-700" : "border-ink-300 bg-white"}`}>{v}</button>
         ))}
       </div>
       {loading && <Loading />}
@@ -34,14 +34,14 @@ export default function FixQueue() {
       {data && data.length === 0 && <Empty title="No fixes here">Open a finding from an audit and click “Generate fix”.</Empty>}
       {data && data.length > 0 && (
         <Card>
-          <table className="w-full text-sm">
-            <thead><tr className="text-left text-xs uppercase text-slate-500"><th className="py-2">Fix</th><th>URL</th><th>Status</th><th>Publishing</th><th>Updated</th></tr></thead>
+          <table className="table-clean">
+            <thead><tr><th>Fix</th><th>URL</th><th>Status</th><th>Publishing</th><th>Updated</th></tr></thead>
             <tbody>{data.map((f) => (
-              <tr key={f.id} className="border-t border-slate-100 align-top">
-                <td className="py-2"><Link href={`/app/${orgId}/fixes/${f.id}`}>{f.fix_type.replace(/_/g, " ")}</Link><div className="text-xs text-slate-500">{f.generator} · risk {f.risk_level}</div></td>
-                <td className="max-w-xs break-all text-slate-600">{f.url}</td><td><StatusBadge s={f.status} /></td>
+              <tr key={f.id}>
+                <td><Link href={`/app/${orgId}/fixes/${f.id}`}>{f.fix_type.replace(/_/g, " ")}</Link><div className="text-xs text-ink-500">{f.generator} · risk {f.risk_level}</div></td>
+                <td className="max-w-xs break-all text-ink-600">{f.url}</td><td><StatusBadge s={f.status} /></td>
                 <td className="text-xs">{f.direct_apply_supported ? "direct" : "manual / export"}</td>
-                <td className="text-xs text-slate-500">{new Date(f.updated_at).toLocaleString()}</td>
+                <td className="text-xs text-ink-500">{new Date(f.updated_at).toLocaleString()}</td>
               </tr>))}</tbody>
           </table>
         </Card>

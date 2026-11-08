@@ -24,18 +24,21 @@ WordPress without a plugin, and **independently verifies** every change on the l
 | Rule-based fixes (canonical, redirects, link updates, internal links, robots) | ✅ working |
 | AI fixes & content analysis (Anthropic Claude) | 🔑 requires `ANTHROPIC_API_KEY` (mock provider for tests/demo) |
 | WordPress publishing (Application Passwords) | ✅ implemented & contract-tested; 🔑 needs a real WordPress 5.6+ site over HTTPS |
+| Shopify publishing (custom app Admin API token): SEO titles, meta descriptions, H1, body content, alt text, URL redirects | ✅ implemented & contract-tested; 🔑 needs a store + token |
+| Wix publishing (API key + site ID): SEO titles, meta descriptions, post titles / product names for blog posts & store products | ✅ implemented & contract-tested; 🔑 needs a Wix site + API key |
+| Google Search Console data (clicks, impressions, CTR, position, top queries/pages) | ✅ implemented & contract-tested; 🔑 needs `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` |
 | Measured keyword data (DataForSEO) | 🔑 requires DataForSEO credentials (contract-tested with mocks) |
 | Stripe billing (checkout, portal, webhooks, cancellation, failed payments) | 🔑 requires Stripe keys; dev billing mode (clearly labelled, simulated) works without |
 | Scheduled audits, regression detection, in-app alerts | ✅ working (Celery beat) — email alerts need SMTP |
 | JavaScript rendering (Playwright, SSRF-safe request routing) | ✅ working when Chromium is installed (`RENDERING_ENABLED=true`) |
 | Admin dashboard | ✅ working |
-| Other platforms (Webflow, Shopify, Wix), Google Search Console, brand-mention data | ❌ not implemented — see `docs/KNOWN_LIMITATIONS.md` |
+| Webflow, brand-mention / AI-citation data | ❌ not implemented — see `docs/KNOWN_LIMITATIONS.md` |
 
 ## Repository layout
 
 ```
 backend/    FastAPI app + Celery workers (Python 3.11+), Alembic migrations, pytest suite
-frontend/   Next.js 14 (App Router, TypeScript, Tailwind), Playwright e2e tests
+frontend/   Next.js 14 (App Router, TypeScript, Tailwind, lucide icons, Inter), Playwright e2e tests
 deploy/     nginx edge proxy config
 scripts/    e2e.sh (starts the whole stack locally and runs Playwright)
 docs/       ARCHITECTURE, API, INTEGRATIONS, SECURITY, DEPLOYMENT, KNOWN_LIMITATIONS
