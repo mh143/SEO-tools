@@ -77,12 +77,17 @@ class ApplyResult:
 class Connector(ABC):
     provider: str
     display_name: str
+    # Operations that act on the whole site (e.g. redirects) rather than on one located page/post.
+    site_level_operations: frozenset[str] = frozenset()
+
+    def site_ref(self, page_url: str) -> ResourceRef:
+        return ResourceRef("site", "", page_url, f"{self.provider}:site")
 
     @abstractmethod
     async def verify_identity(self, creds: dict) -> SiteIdentity: ...
 
     @abstractmethod
-    async def discover_capabilities(self, creds: dict) -> dict[str, Capability]: ...
+    async def discover_capabilities(self, creds: dict, identity: SiteIdentity | None = None) -> dict[str, Capability]: ...
 
     @abstractmethod
     async def locate(self, creds: dict, page_url: str, extracted: dict | None) -> ResourceRef | None: ...

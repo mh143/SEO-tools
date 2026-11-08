@@ -84,6 +84,13 @@ class Settings(BaseSettings):
     # WordPress integration
     wordpress_app_id: str = "4f3b8a3e-7d0e-4b8e-9b44-2b1f2b6d9c11"
 
+    # Google Search Console (OAuth 2.0 web client; redirect URI: <PUBLIC_APP_URL>/api/integrations/google/callback)
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_oauth_authorize_url: str = "https://accounts.google.com/o/oauth2/v2/auth"
+    google_token_url: str = "https://oauth2.googleapis.com/token"  # noqa: S105 - a URL, not a secret
+    gsc_api_base: str = "https://www.googleapis.com/webmasters/v3"
+
     # Email (optional, for monitoring alerts)
     smtp_host: str = ""
     smtp_port: int = 587

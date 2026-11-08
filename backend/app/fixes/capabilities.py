@@ -13,8 +13,11 @@ from app.models import Integration, IntegrationStatus, Issue
 def connected_integration(db: Session, org_id: uuid.UUID, website_id: uuid.UUID | None) -> Integration | None:
     if not website_id:
         return None
+    from app.integrations.registry import PUBLISHING_PROVIDERS
+
     return db.scalar(select(Integration).where(
         Integration.org_id == org_id, Integration.website_id == website_id,
+        Integration.provider.in_(PUBLISHING_PROVIDERS),
         Integration.status == IntegrationStatus.connected).order_by(Integration.created_at.desc()))
 
 

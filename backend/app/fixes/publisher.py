@@ -46,9 +46,14 @@ def operation_params(fix: FixProposal) -> dict:
     a, b = fix.after or {}, fix.before or {}
     t = fix.fix_type
     if t == "meta_title":
-        return {"value": a["title"]}
+        return {"value": a["title"], "target": "seo_title"}
+    if t == "meta_description":
+        return {"value": a["description"]}
     if t == "h1":
-        return {"value": a["h1"]}
+        return {"value": a["h1"], "target": "heading"}
+    if t in ("redirect", "broken_link"):
+        return {"from_url": a.get("from_url") or b.get("from_url") or fix.url, "to_url": a.get("to_url", ""),
+                "status": int(a.get("status") or 301)}
     if t == "image_alt":
         return {"src": b["src"], "alt": a.get("alt", ""), "attachment_id": b.get("wp_attachment_id")}
     if t == "answer_paragraph":
@@ -68,9 +73,12 @@ def preflight(db, fix: FixProposal) -> tuple[dict | None, str]:
     if integ is None or integ.org_id != fix.org_id or integ.status != IntegrationStatus.connected:
         return None, "The publishing integration is not connected."
     creds = decrypt_json(integ.encrypted_credentials)
+    connector = get_connector(integ.provider)
+    if FIX_TYPES[fix.fix_type].operation in connector.site_level_operations:
+        return connector.site_ref(fix.url).to_dict(), ""
     page = db.scalar(select(Page).where(Page.org_id == fix.org_id, Page.url == fix.url).order_by(Page.fetched_at.desc()))
     try:
-        ref = asyncio.run(get_connector(integ.provider).locate(creds, fix.url, page.extracted if page else {}))
+        ref = asyncio.run(connector.locate(creds, fix.url, page.extracted if page else {}))
     except ConnectorError as exc:
         return None, exc.user_message
     if ref is None:
@@ -109,7 +117,10 @@ def apply_fix_job(fix_id: uuid.UUID, actor_id: uuid.UUID | None) -> None:
     connector = get_connector(provider)
 
     async def run():
-        ref = ResourceRef(**known) if known.get("api_url") else await connector.locate(creds, url, extracted)
+        if operation in connector.site_level_operations:
+            ref = connector.site_ref(url)
+        else:
+            ref = ResourceRef(**known) if known.get("api_url") else await connector.locate(creds, url, extracted)
         if ref is None:
             raise ConnectorError("This URL could not be matched to a post or page in the connected site "
                                  "(it may be an archive, theme template or custom post type).")

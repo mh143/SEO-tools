@@ -73,6 +73,9 @@ class FixtureSite:
             def do_DELETE(self):
                 self._serve()
 
+            def do_PATCH(self):
+                self._serve()
+
         return H
 
     def __enter__(self):

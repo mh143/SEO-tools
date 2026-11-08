@@ -110,8 +110,11 @@ async def verify_live(fix_type: str, url: str, before: dict, after: dict, *, exp
             r = await f.fetch(after.get("from_url") or url, follow_redirects=False)
             loc = normalize_url(r.headers.get("location", ""), url) if r.headers.get("location") else None
             to = normalize_url(after.get("to_url") or "") or ""
-            ok = (r.status_code in (301, 308) and loc and loc.rstrip("/") == to.rstrip("/")) or r.status_code == 200
-            result["checks"] = [{"name": "Old URL redirects (301/308) to the target or returns 200", "expected": to,
+            redirected = bool(r.status_code in (301, 308) and loc and loc.rstrip("/") == to.rstrip("/"))
+            ok = (not redirected) if expect_reverted else (redirected or r.status_code == 200)
+            name = ("Old URL no longer redirects to the target" if expect_reverted
+                    else "Old URL redirects (301/308) to the target or returns 200")
+            result["checks"] = [{"name": name, "expected": to,
                                  "observed": {"status": r.status_code, "location": loc}, "passed": bool(ok)}]
             result["status_code"] = r.status_code
             result["passed"] = bool(ok)
